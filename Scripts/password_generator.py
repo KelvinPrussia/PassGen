@@ -11,8 +11,12 @@ while True:
 
 while True:
     try:
-        passwordLength = int(input("What length should the passwords be? (between 6 or 12)\n"))
-        break
+        passwordLength = int(input("What length should the passwords be? (between 6 or 20)\n"))
+        if 5 < passwordLength < 21:
+            break
+        else:
+            print("Length must be greater than 5 and less than 21")
+            continue
     except:
         print("Please enter a whole number")
 
@@ -34,5 +38,7 @@ for x in range(numPasswords):
                 char = random.choice(string.punctuation)
 
         password += char
+
+    # if password contians upperacse, lowercase, digit, punctuation
 
     print(password)
