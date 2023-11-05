@@ -1,6 +1,8 @@
 import random
 import string
 
+passwords = []
+
 print("Hello!")
 while True:
     try:
@@ -11,22 +13,21 @@ while True:
 
 while True:
     try:
-        passwordLength = int(input("What length should the passwords be? (between 6 or 20)\n"))
-        if 5 < passwordLength < 21:
+        passwordLength = int(input("What length should the passwords be? (between 6 and 15)\n"))
+        if 5 < passwordLength < 16:
             break
         else:
-            print("Length must be greater than 5 and less than 21")
+            print("Length must be greater than 5 and less than 16")
             continue
     except:
         print("Please enter a whole number")
 
-
-print(str(numPasswords) + " password that are " + str(passwordLength) + " characters long? Coming right up!")
+print(str(numPasswords) + " passwords that are " + str(passwordLength) + " characters long? Coming right up!")
 
 for x in range(numPasswords):
     password = ""
-    for y in range(passwordLength):
-        rand = random.randint(1,4)
+    for y in range(passwordLength - 4):
+        rand = random.randint(1, 4)
         match rand:
             case 1:
                 char = random.choice(string.ascii_lowercase)
@@ -39,6 +40,11 @@ for x in range(numPasswords):
 
         password += char
 
-    # if password contians upperacse, lowercase, digit, punctuation
+    guaranteedChars = [random.choice(string.ascii_lowercase), random.choice(string.ascii_uppercase),
+                       random.choice(string.digits), random.choice(string.punctuation)]
 
-    print(password)
+    for char in guaranteedChars:
+        index = random.randint(0, len(password))
+        password = password[:index] + char + password[index:]
+
+    passwords.append(password)
