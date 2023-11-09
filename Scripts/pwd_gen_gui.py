@@ -6,72 +6,86 @@ customtkinter.set_appearance_mode("dark")
 customtkinter.set_default_color_theme("green")
 
 
-class GUI:
+class app():
 
     def __init__(self):
-        root = ctk.CTk()
-        root.geometry("800x400")
-        root.title("Password Generator")
-        vcmd_num = (root.register(self.validate_num), '%P')
-        vcmd_len = (root.register(self.validate_len), '%P')
-        vcmd_sld = (root.register(self.validate_sld), '%P')
 
-        header_fr = ctk.CTkFrame(root)
-        body_fr = ctk.CTkFrame(root)
-        input_fr = ctk.CTkFrame(body_fr)
-        output_fr = ctk.CTkFrame(body_fr)
+        ## root window
+        self.root = ctk.CTk()
+        self.root.geometry("600x300")
+        self.root.title("Password Generator")
 
-        body_fr.columnconfigure(0, weight=1)
-        body_fr.columnconfigure(0, weight=1)
+        ## validate commands
+        self.vcmd_num = (self.root.register(self.validate_num), '%P')
+        self.vcmd_len = (self.root.register(self.validate_len), '%P')
 
-        header_text = ctk.CTkLabel(header_fr, text="Password Generator", font=("Arial", 15))
-        header_text.pack()
+        ## frames
+        self.header_fr = ctk.CTkFrame(self.root, width=600)
+        self.body_fr = ctk.CTkFrame(self.root)
+        self.input_fr = ctk.CTkFrame(self.body_fr, height=250)
+        self.output_fr = ctk.CTkFrame(self.body_fr, height=250)
 
-        num = ctk.IntVar(value=1)
-        num_slider_text = ctk.CTkLabel(input_fr, text="Number of Passwords")
-        num_slider_text.pack()
-        num_entry = ctk.CTkEntry(input_fr, validate='all', validatecommand=vcmd_num, textvariable=num)
-        num_entry.pack()
-        self.num_slider = ctk.CTkSlider(input_fr,
+        # root frame configuration
+        self.root.grid_rowconfigure(1, weight=1)
+        self.root.grid_columnconfigure(0, weight=1)
+
+        self.header_fr.grid(row=0, sticky="ew", ipady=5)
+        self.body_fr.grid(row=1, sticky="nsew")
+
+        self.body_fr.grid_rowconfigure(0, weight=1)
+        self.body_fr.grid_columnconfigure(1, weight=1)
+
+        self.input_fr.grid(row=0, column=0, sticky="nsew", padx=(5, 5), pady=5)
+        self.output_fr.grid(row=0, column=1, sticky="nsew", padx=(0, 5), pady=5)
+
+        # Widgets
+        self.header_text = ctk.CTkLabel(self.header_fr, text="Password Generator", font=("Arial", 28), text_color="#2fa572")
+        self.header_text.pack(expand=True)
+
+        self.num = ctk.IntVar(value=1)
+        self.num_slider_text = ctk.CTkLabel(self.input_fr, text="Number of Passwords", font=("Arial", 18), text_color="#2fa572")
+        self.num_slider_text.pack(pady=(10, 0))
+        self.num_entry = ctk.CTkEntry(self.input_fr, validate='all', validatecommand=self.vcmd_num,
+                                      textvariable=self.num)
+        self.num_entry.pack()
+        self.num_slider = ctk.CTkSlider(self.input_fr,
                                         from_=1, to=10,
-                                        variable=num)
-        self.num_slider.pack()
+                                        variable=self.num)
+        self.num_slider.pack(padx=5)
 
-        pwd_len = ctk.IntVar(value=6)
-        len_slider_text = ctk.CTkLabel(input_fr, text="Length of Passwords")
-        len_slider_text.pack()
-        len_entry = ctk.CTkEntry(input_fr, validate='all', validatecommand=vcmd_len, textvariable=pwd_len)
-        len_entry.pack()
-        self.len_slider = ctk.CTkSlider(input_fr,
+        self.pwd_len = ctk.IntVar(value=6)
+        self.len_slider_text = ctk.CTkLabel(self.input_fr, text="Password length", font=("Arial", 18), text_color="#2fa572")
+        self.len_slider_text.pack(pady=(20, 0))
+        self.len_entry = ctk.CTkEntry(self.input_fr, validate='all', validatecommand=self.vcmd_len,
+                                      textvariable=self.pwd_len)
+        self.len_entry.pack()
+        self.len_slider = ctk.CTkSlider(self.input_fr,
                                         from_=6, to=16,
-                                        variable=pwd_len)
+                                        variable=self.pwd_len)
         self.len_slider.pack()
 
-        gen_button = ctk.CTkButton(input_fr, text="Generate!", font=("Arial", 10), command=self.gen_pwds)
-        gen_button.pack()
+        self.gen_button = ctk.CTkButton(self.input_fr, text="Generate!", font=("Arial", 20), command=self.gen_pwds)
+        self.gen_button.pack(expand=True, anchor=ctk.S, pady=(0, 10))
 
-        pwds = [""]
-        output_text = ctk.CTkLabel(output_fr,
-                                   text="Passwords will generate here",
-                                   height=160,
-                                   width=300,
-                                   font=("arial", 16),
-                                   textvariable=pwds,
-                                   justify="left",
-                                   anchor="nw",
-                                   corner_radius=10,
-                                   fg_color="transparent")
-        output_text.pack()
+        self.output_text = ctk.CTkTextbox(self.output_fr,
+                                          font=("arial", 19),
+                                          corner_radius=10,
+                                          state="disabled")
 
-        header_fr.pack()
-        input_fr.grid(row=0, column=0)
-        output_fr.grid(row=0, column=1, padx=10)
-        body_fr.pack(pady=25)
+        self.output_text.pack(fill=ctk.BOTH, expand=True)
 
-        root.mainloop()
+        # run
+        self.root.mainloop()
 
     def gen_pwds(self):
-        password_generator.gen_pwds(int(self.num_slider.get()), int(self.len_slider.get()))
+        pwds = password_generator.gen_pwds(int(self.num_slider.get()), int(self.len_slider.get()))
+        pwds_text = "\n".join(pwds)
+        self.output_text.configure(state="normal")
+        self.output_text.delete("0.0", ctk.END)
+        self.output_text.insert("0.0", pwds_text)
+        self.output_text.tag_config("center", justify="center")
+        self.output_text.tag_add("center", "0.0", ctk.END)
+        self.output_text.configure(state="disabled")
 
     def validate_num(self, P):
         if str.isdigit(P):
@@ -83,6 +97,7 @@ class GUI:
             return True
         else:
             return False
+
     def validate_len(self, P):
         if str.isdigit(P):
             if 6 <= int(P) <= 16:
@@ -94,12 +109,5 @@ class GUI:
         else:
             return False
 
-    def validate_sld(self, P):
-        if str.isdigit(P):
-            return True
-        else:
-            return False
 
-
-
-GUI()
+app()
